@@ -14,8 +14,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 function HomePage() {
-  const { isLoading, auth } = usePuterStore();
-  const location = useLocation();
+  const { auth } = usePuterStore();
   const navigate = useNavigate();
 
   useEffect(() => {
