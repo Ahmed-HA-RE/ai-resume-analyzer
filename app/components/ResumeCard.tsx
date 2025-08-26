@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import type { Resume } from 'types';
+import type { Resume } from 'types/resumes';
 import ScoreCircle from './ScoreCircle';
 
 type ResumeCardProps = {
@@ -13,7 +13,7 @@ function ResumeCard({ resume }: ResumeCardProps) {
       to={`/resume/${resume.id}`}
     >
       <div className='resume-card-header'>
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col items-center md:items-start gap-2'>
           <h2 className='!text-black font-bold break-words'>
             {resume.companyName}
           </h2>

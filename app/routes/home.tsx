@@ -2,6 +2,9 @@ import { resumes } from '~/data/resume';
 import type { Route } from '../../.react-router/types/app/routes/+types/home';
 import Navbar from '~/components/Navbar';
 import ResumeCard from '~/components/ResumeCard';
+import { useLocation, useNavigate } from 'react-router';
+import { usePuterStore } from '~/lib/puter';
+import { useEffect } from 'react';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,6 +14,16 @@ export function meta({}: Route.MetaArgs) {
 }
 
 function HomePage() {
+  const { isLoading, auth } = usePuterStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!auth.isAuthenticated) {
+      navigate('/auth?next=/');
+    }
+  }, [auth.isAuthenticated, navigate]);
+
   return (
     <main className='bg-[url(/images/bg-main.svg)] bg-cover'>
       <Navbar />

@@ -1,4 +1,4 @@
-import type { Resume } from 'types';
+import type { Resume } from 'types/resumes';
 
 export const resumes: Resume[] = [
   {
