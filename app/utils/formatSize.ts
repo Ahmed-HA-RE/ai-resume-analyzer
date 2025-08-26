@@ -10,3 +10,7 @@ function formatSize(bytes: number): string {
 }
 
 export default formatSize;
+
+export function generateUUID() {
+  return crypto.randomUUID;
+}

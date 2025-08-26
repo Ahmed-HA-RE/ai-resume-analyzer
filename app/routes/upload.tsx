@@ -2,8 +2,17 @@ import { useState, type FormEvent } from 'react';
 import FileUploader from '~/components/FileUploader';
 import Navbar from '~/components/Navbar';
 import { toast } from 'sonner';
+import type { FormData } from 'types/FormData';
+import { usePuterStore } from '~/lib/puter';
+import { useNavigate } from 'react-router';
+import { convertPdfToImage } from '~/lib/pdfToImage';
+import { generateUUID } from '~/utils/generateUUID';
+import path from 'path';
+import { prepareInstructions } from '~/data/resume';
 
 function UploadPage() {
+  const { auth, kv, isLoading, fs, ai } = usePuterStore();
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -11,10 +20,80 @@ function UploadPage() {
   const [jobTitle, setJobtitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
 
+  async function handleAnalyze({
+    companyName,
+    jobTitle,
+    jobDescription,
+    file,
+  }: FormData) {
+    setIsProcessing(true);
+    setStatusText('Uploading The File...');
+    const uploadeFile = await fs.upload([file]);
+
+    if (!uploadeFile) {
+      setStatusText('Failed to upload file');
+      toast.error('Failed to upload file');
+      return;
+    }
+
+    setStatusText('Converting Image...');
+    const imageFile = await convertPdfToImage(file);
+
+    if (!imageFile.file) {
+      setStatusText('Failed to convert PDF to Image');
+      toast.error('Failed to convert PDF to Image');
+      return;
+    }
+
+    setStatusText('Uploading The Image...');
+    const uploadImage = await fs.upload([imageFile.file]);
+
+    if (!uploadImage) {
+      setStatusText('Failed to upload Image');
+      toast.error('Failed to upload Image');
+      return;
+    }
+
+    setStatusText('Preparing data...');
+
+    const uuid = generateUUID();
+    const data = {
+      id: uuid,
+      companyName,
+      jobDescription,
+      jobTitle,
+      resumePath: uploadeFile.path,
+      imagePath: uploadImage.path,
+      feddback: '',
+    };
+
+    await kv.set(`resume ${uuid}`, JSON.stringify(data));
+    setStatusText('Analyzing...');
+    const feedback = await ai.feedback(
+      uploadeFile.path,
+      prepareInstructions({ jobDescription, jobTitle })
+    );
+
+    if (!feedback) {
+      setStatusText('Failed to analyze resume');
+      toast.error('Failed to analyze resume');
+      return;
+    }
+
+    const feedbackText =
+      typeof feedback.message.content === 'string'
+        ? feedback.message.content
+        : feedback.message.content[0].text;
+
+    data.feddback = JSON.parse(feedbackText);
+    await kv.set(`resume ${uuid}`, JSON.stringify(data));
+    setStatusText('Analysis Complete, redirecting...');
+  }
+
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!companyName || !jobTitle || !jobDescription) {
+    if (!companyName || !jobTitle || !jobDescription || !file) {
       toast.error('Please Fill All The Fields ');
       return;
     }
@@ -25,6 +104,7 @@ function UploadPage() {
       jobDescription,
       file,
     };
+    handleAnalyze(message);
   }
 
   function onFileSelect(file: File | null) {
