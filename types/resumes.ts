@@ -14,7 +14,7 @@ export type Resume = {
   feedback: Feedback;
 };
 
-type Feedback = {
+export type Feedback = {
   overallScore: number;
   ATS: {
     score: number;

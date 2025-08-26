@@ -64,7 +64,7 @@ function UploadPage() {
       jobTitle,
       resumePath: uploadeFile.path,
       imagePath: uploadImage.path,
-      feddback: '',
+      feedback: '',
     };
 
     await kv.set(`resume ${uuid}`, JSON.stringify(data));
@@ -85,9 +85,10 @@ function UploadPage() {
         ? feedback.message.content
         : feedback.message.content[0].text;
 
-    data.feddback = JSON.parse(feedbackText);
-    await kv.set(`resume ${uuid}`, JSON.stringify(data));
+    data.feedback = JSON.parse(feedbackText);
+    await kv.set(`resume:${uuid}`, JSON.stringify(data));
     setStatusText('Analysis Complete, redirecting...');
+    navigate(`/resume/${data.id}`);
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
