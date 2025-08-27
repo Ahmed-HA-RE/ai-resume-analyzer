@@ -28,9 +28,9 @@ function UploadPage() {
   }: FormData) {
     setIsProcessing(true);
     setStatusText('Uploading The File...');
-    const uploadeFile = await fs.upload([file]);
 
-    if (!uploadeFile) {
+    const uploadedFile = await fs.upload([file]);
+    if (!uploadedFile) {
       setStatusText('Failed to upload file');
       toast.error('Failed to upload file');
       return;
@@ -38,7 +38,6 @@ function UploadPage() {
 
     setStatusText('Converting Image...');
     const imageFile = await convertPdfToImage(file);
-
     if (!imageFile.file) {
       setStatusText('Failed to convert PDF to Image');
       toast.error('Failed to convert PDF to Image');
@@ -47,7 +46,6 @@ function UploadPage() {
 
     setStatusText('Uploading The Image...');
     const uploadImage = await fs.upload([imageFile.file]);
-
     if (!uploadImage) {
       setStatusText('Failed to upload Image');
       toast.error('Failed to upload Image');
@@ -55,40 +53,48 @@ function UploadPage() {
     }
 
     setStatusText('Preparing data...');
-
     const uuid = generateUUID();
     const data = {
       id: uuid,
       companyName,
       jobDescription,
       jobTitle,
-      resumePath: uploadeFile.path,
+      resumePath: uploadedFile.path,
       imagePath: uploadImage.path,
       feedback: '',
     };
-
     await kv.set(`resume:${uuid}`, JSON.stringify(data));
+
+    // Call server API
     setStatusText('Analyzing...');
-    const feedback = await ai.feedback(
-      uploadeFile.path,
-      prepareInstructions({ jobDescription, jobTitle })
-    );
+    try {
+      const response = await fetch('/api/analyzeResume', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resumePath: uploadedFile.path,
+          jobTitle,
+          jobDescription,
+        }),
+      });
 
-    if (!feedback) {
-      setStatusText('Failed to analyze resume');
+      const result = await response.json();
+      if (!result.success) {
+        toast.error(result.error || 'Analysis failed');
+        setStatusText('Analysis failed');
+        return;
+      }
+
+      data.feedback = result.feedback;
+      await kv.set(`resume:${uuid}`, JSON.stringify(data));
+
+      setStatusText('Analysis Complete, redirecting...');
+      navigate(`/resume/${data.id}`);
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to analyze resume');
-      return;
+      setStatusText('Analysis failed');
     }
-
-    const feedbackText =
-      typeof feedback.message.content === 'string'
-        ? feedback.message.content
-        : feedback.message.content[0].text;
-
-    data.feedback = JSON.parse(feedbackText);
-    await kv.set(`resume:${uuid}`, JSON.stringify(data));
-    setStatusText('Analysis Complete, redirecting...');
-    navigate(`/resume/${data.id}`);
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
