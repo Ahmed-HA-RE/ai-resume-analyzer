@@ -23,7 +23,7 @@ function ResumePage() {
 
   useEffect(() => {
     async function loadResume() {
-      const resume = await kv.get(`resume ${id}`);
+      const resume = await kv.get(`resume:${id}`);
 
       if (!resume) return;
 
@@ -41,7 +41,6 @@ function ResumePage() {
       const imageUrl = URL.createObjectURL(imageBlob);
       setImageUrl(imageUrl);
       setFeedback(data.feedback);
-      console.log('Loaded feedback:', data.feedback);
     }
 
     loadResume();

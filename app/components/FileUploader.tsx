@@ -38,10 +38,7 @@ function FileUploader({ onFileSelect }: FileUploaderProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <div>
-                <img
-                  src='../../public/images/pdf.png'
-                  className='w-10 object-cover'
-                />
+                <img src='/images/pdf.png' className='w-10 object-cover' />
               </div>
               <div className='flex flex-col items-center space-y-1'>
                 <p className='text-sm truncate text-gray-700 font-medium'>
@@ -56,17 +53,13 @@ function FileUploader({ onFileSelect }: FileUploaderProps) {
                 className='p-2 cursor-pointer'
                 onClick={() => onFileSelect?.(null)}
               >
-                <img
-                  src='../../public/icons/cross.svg'
-                  alt='remove'
-                  className='w-4 h-4'
-                />
+                <img src='/icons/cross.svg' alt='remove' className='w-4 h-4' />
               </button>
             </div>
           ) : (
             <div>
               <div className='mx-auto w-16 h-16 flex items-center justify-center mb-4'>
-                <img src='../../public/icons/info.svg' alt='resume-uploader' />
+                <img src='/icons/info.svg' alt='resume-uploader' />
               </div>
               <p className='text-lg text-gray-500'>
                 <span className='font-semibold'>Click to upload</span> or drag
