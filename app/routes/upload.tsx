@@ -7,7 +7,6 @@ import { usePuterStore } from '~/lib/puter';
 import { useNavigate } from 'react-router';
 import { convertPdfToImage } from '~/lib/pdfToImage';
 import { generateUUID } from '~/utils/generateUUID';
-import path from 'path';
 import { prepareInstructions } from '~/data/resume';
 
 function UploadPage() {
@@ -86,7 +85,7 @@ function UploadPage() {
         : feedback.message.content[0].text;
 
     data.feedback = JSON.parse(feedbackText);
-    await kv.set(`resume ${uuid}`, JSON.stringify(data));
+    await kv.set(`resume${uuid}`, JSON.stringify(data));
     setStatusText('Analysis Complete, redirecting...');
     navigate(`/resume/${data.id}`);
   }
