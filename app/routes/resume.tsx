@@ -41,6 +41,7 @@ function ResumePage() {
       const imageUrl = URL.createObjectURL(imageBlob);
       setImageUrl(imageUrl);
       setFeedback(data.feedback);
+      console.log('Loaded feedback:', data.feedback);
     }
 
     loadResume();
@@ -57,11 +58,7 @@ function ResumePage() {
       <header>
         <nav className='resume-nav'>
           <Link className='back-button' to={'/'}>
-            <img
-              src='../../public/icons/back.svg'
-              alt=''
-              className='w-2.5 h-2.5'
-            />
+            <img src='/icons/back.svg' alt='' className='w-2.5 h-2.5' />
             <span className='text-gray-800 text-sm font-semibold'>
               Back to Homepage
             </span>
@@ -70,13 +67,13 @@ function ResumePage() {
       </header>
       <main className='!pt-0'>
         <div className='flex flex-col-reverse lg:flex-row w-full'>
-          <section className="feedback-section bg-[url('/images/bg-small.svg')] min-h-screen sticky top-0 items-center justify-center">
+          <section className="feedback-section bg-[url('/images/bg-small.svg')] min-h-screen sticky top-0 items-center justify-start">
             {imageUrl && resumeUrl && (
-              <div className='animate-in fade-in duration-1000 gradient-border h-[90%]'>
+              <div className='animate-in fade-in duration-1000 gradient-border h-screen'>
                 <a href={resumeUrl} target='_blank'>
                   <img
                     src={imageUrl}
-                    className='w-full h-full object-contain rounded-2xl'
+                    className='w-full h-full object-cover rounded-2xl'
                   />
                 </a>
               </div>
@@ -95,10 +92,7 @@ function ResumePage() {
                 <Details feedback={feedback} />
               </div>
             ) : (
-              <img
-                src='../../public/images/resume-scan-2.gif'
-                className='w-full'
-              />
+              <img src='/images/resume-scan-2.gif' className='w-full' />
             )}
           </section>
         </div>
